@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use AlgoliaSearch\Client;
+use AlgoliaSearch\Index;
 use Illuminate\Console\Command;
 
 class AlgoliaExporter extends Command
@@ -13,7 +14,7 @@ class AlgoliaExporter extends Command
     protected $algolia;
 
     /**
-     * @var AlgoliaSearch\Index
+     * @var Index
      */
     protected $index;
 
