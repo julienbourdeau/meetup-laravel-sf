@@ -5901,9 +5901,9 @@ vue-hot-reload-api@^2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/vue-hot-reload-api/-/vue-hot-reload-api-2.1.0.tgz#9ca58a6e0df9078554ce1708688b6578754d86de"
 
-vue-instantsearch@^0.3.2:
-  version "0.3.2"
-  resolved "https://registry.yarnpkg.com/vue-instantsearch/-/vue-instantsearch-0.3.2.tgz#b05ae677ac0fa4aa6866358a410018de3fb6e33e"
+vue-instantsearch@^0.4.0:
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/vue-instantsearch/-/vue-instantsearch-0.4.0.tgz#81d1b9d83ec175e49345131b42bd0aa34a6114e2"
   dependencies:
     algoliasearch "^3.18.1"
     algoliasearch-helper "^2.21.1"

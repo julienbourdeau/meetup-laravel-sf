@@ -8,83 +8,91 @@
 
     <title>Laracon demo</title>
 
+    <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" />
     <link rel="stylesheet" href="/css/bootstrap.min.css">
     <link rel="stylesheet" href="{{ mix('/css/app.css') }}">
 </head>
 
 <body>
 
-    <div id="app"></div>
+    <div id="app">
+    <ais-index index-name="{{ config('scout.prefix') }}homes"
+               app-id="{{ config('scout.algolia.id') }}"
+               api-key="{{ config('scout.algolia.key') }}"
+    >
 
+        <div class="container-fluid" style="padding-left: 0; padding-right: 0;">
+            <header class="navbar navbar-static-top aisdemo-navbar">
+                <a href="https://community.algolia.com/vue-instantsearch/" class="logo"><img src="/img/instantsearch-Vue-medal.svg" width=40 ></a>
+                <i class="fa fa-search"></i>
 
-    <div class="container-fluid" style="padding-left: 0; padding-right: 0;">
-        <header class="navbar navbar-static-top aisdemo-navbar">
-            <a href="https://community.algolia.com/instantsearch.js/" class="is-logo"><img src="logo-is.png" width=40 ></a>
-            <a href="./" class="logo">A</a>
-            <i class="fa fa-search"></i>
-            <input type="text" class="form-control" id="q" />
-        </header>
-    </div>
-    <!-- /Header -->
+                <ais-input></ais-input>
 
-    <!-- Filters and map -->
-    <div class="container-fluid">
-        <div class="row">
+            </header>
+        </div>
 
-            <!-- Left col -->
-            <div class="col-sm-7 aisdemo--left-column">
+        <div class="container-fluid">
+            <div class="row">
 
-                <div class="aisdemo-filters">
-                    <!-- Dates & Guests -->
-                    <div class="row aisdemo-filter">
-                        <div class="col-sm-2 aisdemo-filter-title">Dates</div>
-                        <div class="col-sm-3"><input class="date form-control" value="10/30/3015" disabled /></div>
-                        <div class="col-sm-3"><input class="date form-control" value="10/30/3015" disabled /></div>
-                        <div class="col-sm-3"><div id="guests"></div></div>
+                <!-- Left col -->
+                <div class="col-sm-7 aisdemo--left-column">
+
+                    <div class="aisdemo-filters">
+                        <!-- Dates & Guests -->
+                        <div class="row aisdemo-filter">
+                            <div class="col-sm-2 aisdemo-filter-title">Dates</div>
+                            <div class="col-sm-3"><input class="date form-control" value="10/30/3015" disabled /></div>
+                            <div class="col-sm-3"><input class="date form-control" value="10/30/3015" disabled /></div>
+                        </div>
+                        <!-- Room types -->
+                        <div class="row aisdemo-filter">
+                            <div class="col-sm-2 aisdemo-filter-title">Room Type</div>
+                            <div id="room_types">
+                                <ais-refinement-list attribute-name="room_type"></ais-refinement-list>
+                            </div>
+                        </div>
                     </div>
-                    <!-- Room types -->
-                    <div class="row aisdemo-filter">
-                        <div class="col-sm-2 aisdemo-filter-title">Room Type</div>
-                        <div id="room_types"></div>
+
+                    <div class="row">
+                        <div id="stats">
+                            <ais-stats></ais-stats>
+                        </div>
                     </div>
-                    <!-- Price -->
-                    <div class="row aisdemo-filter">
-                        <div class="col-sm-2 aisdemo-filter-title">Price Range</div>
-                        <div class="col-sm-9" id="price"></div>
-                    </div>
+
                 </div>
+                <!-- /Left col -->
 
-                <div class="row">
-                    <div id="stats"></div>
+                <!-- Right col -->
+                <div class="col-sm-5 aisdemo--right-column">
+                    <div id="map"></div>
                 </div>
+                <!-- /Right col -->
 
             </div>
-            <!-- /Left col -->
+        </div>
 
-            <!-- Right col -->
-            <div class="col-sm-5 aisdemo--right-column">
-                <div id="map"></div>
+        <div class="container-fluid" id="results">
+            <div class="row" id="hits">
+                <ais-no-results></ais-no-results>
+                <ais-results>
+                    <template scope="{ result }">
+                        <home-item :home="result"></home-item>
+                    </template>
+                </ais-results>
             </div>
-            <!-- /Right col -->
-
+            <div class="row">
+                <div id="pagination">
+                    <ais-pagination :class-names="{ 'ais-pagination': 'pagination' }"></ais-pagination>
+                </div>
+                <div class="thank-you">Data from <a href="https://www.airbnb.com/">airbnb.com</a>, user pics from <a href="https://randomuser.me/">randomuser.me</a></div>
+            </div>
         </div>
+
+    </ais-index>
     </div>
-    <!-- /Filters and Map -->
 
-    <!-- Results -->
-    <div class="container-fluid" id="results">
-        <div class="row">
-            <div id="hits"></div>
-        </div>
-        <div class="row">
-            <div id="pagination"></div>
-            <div class="thank-you">Data from <a href="https://www.airbnb.com/">airbnb.com</a>, user pics from <a href="https://randomuser.me/">randomuser.me</a></div>
-        </div>
-    </div>
-    <!-- /Results -->
-
-
-    <script src="/js/instantsearch.min.js" type="text/javascript"></script>
 
     <script src="{{ mix('/js/app.js') }}" type="text/javascript"></script>
 </body>
