@@ -1,0 +1,512 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<title>reveal.js</title>
+
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/theme/simple.css">
+
+		<!-- Theme used for syntax highlighting of code -->
+		<link rel="stylesheet" href="lib/css/github.css">
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+	</head>
+	<body>
+		<div class="reveal">
+			<div class="slides">
+				<section>
+					<h2>Build an Airbnb-like search</h2>
+					<h3>with Laravel, Algolia and Vue.js</h3>
+				</section>
+				<section data-markdown>
+					## About me
+
+					* I'm Julien Bourdeau
+					* Search lover working @ Algolia
+					* I like traveling
+				</section>
+				<section class="stretch">
+					<img data-src="img/what-algolia-is.png" width="66%">
+				</section>
+				<section>
+					<img data-src="final-demo.png">
+				</section>
+				<section data-markdown>
+					## The 3 steps process
+
+					* Indexing
+					* Ranking
+					* Searching
+				</section>
+				<section>
+					<pre><code data-trim data-noescape>
+					{
+						"name": "Nice flat, central SF",
+						"address": "123 Howard st",
+						"zip": "32134",
+						"state": "California",
+						"lat": -2.13,
+						"lng": 12.34,
+						"property_type": "appartment",
+						"reviews_count": 42,
+						"room_type": "entire apt/home",
+						"price": 79.99,
+						"urls": {"thumb": "...", "large": "..."}
+					}
+					</code></pre>
+				</section>
+
+				<section class="stretch">
+					<pre><code class="php" data-trim data-noescape>
+					namespace App;
+
+					use Illuminate\Database\Eloquent\Model;
+
+					class Home extends Model
+					{
+						protected $casts = [
+							'urls' => 'array',
+						];
+					}
+					</code></pre>
+				</section>
+
+				<section>
+					<pre><code class="bash" data-trim data-noescape>
+						composer require laravel/scout
+						composer require algolia/algoliasearch-client-php
+					</code></pre>
+
+					<a href="https://laravel.com/docs/5.4/scout#installation">https://laravel.com/docs/5.4/scout#installation</a>
+
+					<pre><code class="bash" data-trim data-noescape>
+						ALGOLIA_APP_ID=K7MLRQH1JG
+						ALGOLIA_SECRET=0d70363673775416ad0c811f34567368bce
+					</code></pre>
+				</section>
+				<section>
+					<img data-src="img/dashboard-API-keys.png">
+				</section>
+
+				<section class="stretch">
+					<pre><code class="php" data-trim data-noescape>
+					namespace App;
+
+					use Illuminate\Database\Eloquent\Model;
+					<mark>use Laravel\Scout\Searchable</mark>
+
+					class Home extends Model
+					{
+						<mark>use Searchable;</mark>
+
+						protected $casts = [
+							'urls' => 'array',
+						];
+					}
+					</code></pre>
+				</section>
+
+				<section>
+					<img data-src="img/cmd-scout-import.png">
+				</section>
+
+				<section>
+					<h1>Building search</h1>
+				</section>
+
+				<section>
+					<img data-src="img/frontend-search.png" style="border:none;">
+				</section>
+				<section>
+					<img data-src="img/instantsearch-Vue-medal.svg" style="border:none; box-shadow: none">
+				</section>
+
+				<section>
+					<pre><code class="bash" data-trim data-noescape>
+						yarn add vue-instantsearch
+					</code></pre>
+				</section>
+
+				<section>
+					<pre><code class="js" data-trim data-noescape>
+					// resources/assets/js/app.js
+					require('./bootstrap');
+
+					window.Vue = require('vue');
+
+					Vue.component('example', require('./components/Example.vue'));
+
+					const app = new Vue({
+						el: '#app'
+					});
+					</code></pre>
+				</section>
+
+				<section>
+					<pre><code class="js" data-trim data-noescape>
+					// resources/assets/js/app.js
+					require('./bootstrap');
+
+					window.Vue = require('vue');
+
+					<mark>var VueInstantSearch = require('vue-instantsearch');</mark>
+
+					<mark>Vue.use(VueInstantSearch);</mark>
+
+					Vue.component('example', require('./components/Example.vue'));
+
+					const app = new Vue({
+						el: '#app'
+					});
+					</code></pre>
+				</section>
+
+				<section>
+					<pre><code class="html" data-trim>
+<div id="app">
+	<ais-index index-name="{{ config('scout.prefix') }}homes"
+			   app-id="{{ config('scout.algolia.id') }}"
+			   api-key="MY_SEARCH_API_KEY"
+	>
+
+		<!-- Vue InstantSearch components -->
+
+	</ais-index>
+</div>
+					</code></pre>
+				</section>
+
+				<section>
+					<pre><code class="html" data-trim>
+					<!-- resources/views/welcome.blade.php -->
+					<ais-index ...="..." >
+
+						<header>
+							<div class="logo"></div>
+
+							<ais-input></ais-input>
+
+						</header>
+
+					</ais-index>
+					</code></pre>
+				</section>
+				<section>
+					<img data-src="img/screenshots/1.gif">
+				</section>
+
+				<section>
+					<pre><code class="html" data-trim>
+					<!-- resources/views/welcome.blade.php -->
+					<ais-index ...="..." >
+
+						<header> ... </header>
+
+						<ais-results>
+							<template scope="{ result }">
+
+								<home-item :home="result"></home-item>
+
+							</template>
+						</ais-results>
+
+						<ais-pagination></ais-pagination>
+
+					</ais-index>
+					</code></pre>
+				</section>
+
+				<section>
+					<h3>The <code>home-item</code> component</h3>
+				</section>
+
+				<section>
+					<pre><code class="html" data-trim>
+<!-- resources/assets/js/components/HomeItem.vue -->
+<template>
+
+	<div class="hit col-sm-3">
+		<div class="pictures-wrapper">
+			<img class="picture" :src="home.urls.picture_url">
+			<img class="profile" :src="home.user.thumbnail_url">
+		</div>
+
+		<div class="infos">
+			<h4>{{ home.name }}</h4>
+			<p>{{ home.room_type }} - {{ home.city}}, {{ home.country }}</p>
+		</div>
+	</div>
+
+</template>
+
+<script>
+    export default {
+        props: ['home']
+    }
+</script>
+
+					</code></pre>
+				</section>
+
+				<section>
+					<pre><code class="js" data-trim data-noescape>
+					// resources/assets/js/app.js
+					require('./bootstrap');
+
+					window.Vue = require('vue');
+
+					var VueInstantSearch = require('vue-instantsearch');
+
+					Vue.use(VueInstantSearch);
+
+					<mark>Vue.component('home-item', require('./components/HomeItem.vue'));</mark>
+
+					const app = new Vue({
+						el: '#app'
+					});
+					</code></pre>
+					</section>
+				</section>
+
+				<section>
+					<img data-src="img/screenshots/2.gif">
+				</section>
+
+
+				<section>
+					<h3>Match highlighting</h3>
+				</section>
+
+				<section>
+					<pre><code class="html" data-trim>
+<!-- resources/assets/js/components/HomeItem.vue -->
+<template>
+
+	<div class="hit col-sm-3">
+		<div class="pictures-wrapper">
+			...
+		</div>
+
+		<div class="infos">
+			<h4>
+				<ais-highlight :result="home" attribute-name="name"></ais-highlight>
+			</h4>
+			<p>{{ home.room_type }} - {{ home.city}}, {{ home.country }}
+			</p>
+		</div>
+	</div>
+
+</template>
+
+					</code></pre>
+				</section>
+				<section>
+					<img data-src="img/screenshots/3.gif">
+				</section>
+
+
+				<section>
+					<h2>Quick tip: class mapping</h2>
+
+					Use Bootstrap, Foundation or Bulma easily.
+
+					<pre><code class="html" data-trim>
+					<ais-pagination :class-names="{ 'ais-pagination': 'my-pagination' }">
+
+					</ais-pagination>
+					</code></pre>
+				</section>
+
+
+				<section>
+					<h2>Faceting</h2>
+					<h4>Search by filters</h4>
+				</section>
+
+				<section>
+					<img data-src="img/facet-config.png">
+				</section>
+
+				<section>
+					<pre><code class="html" data-trim>
+					<!-- resources/views/welcome.blade.php -->
+					<ais-index ...="..." >
+
+						<header> ... </header>
+
+						<div class="aisdemo-filters">
+							<div class="row aisdemo-filter">...</div>
+													<!-- Room types -->
+							<div class="row aisdemo-filter">
+								<div class="col-sm-2 aisdemo-filter-title">Room Type</div>
+								<div id="room_types">
+
+									<ais-refinement-list attribute-name="room_type"></ais-refinement-list>
+
+								</div>
+							</div>
+						</div>
+
+						<ais-results>...</ais-results>
+						<ais-pagination></ais-pagination>
+
+					</ais-index>
+					</code></pre>
+				</section>
+
+				<section>
+					<img data-src="img/screenshots/4.gif">
+				</section>
+
+
+				<section>
+					<h1>GeoSearch</h1>
+				</section>
+
+
+				<section>
+					<pre><code class="php" data-trim data-noescape>
+class Home extends Model
+{
+	use Searchable;
+
+	public function toSearchableArray()
+	{
+		$home = $this->toArray();
+
+		<mark>$home['_geoloc'] = [</mark>
+			<mark>'lat' => $this->lat,</mark>
+			<mark>'lng' => $this->lng,</mark>
+		<mark>];</mark>
+
+		return $home;
+	}
+}
+					</code></pre>
+				</section>
+
+				<section>
+					<pre><code class="bash" data-trim>
+						yarn add vue2-google-maps
+					</code></pre>
+
+					<pre><code class="js" data-trim data-noescape>
+// resources/assets/js/app.js
+// ...
+
+window.Vue = require('vue');
+
+var VueInstantSearch = require('vue-instantsearch');
+<mark>var gmap = require('vue2-google-maps');</mark>
+
+Vue.use(VueInstantSearch);
+<mark>Vue.use(gmap, {</mark>
+    <mark>load: {</mark>
+        <mark>key: 'AIzaSyADPcNtx73H5EXqnFkPYTlqkVHRqWQofes'</mark>
+    <mark>}</mark>
+<mark>});</mark>
+
+// ...
+					</code></pre>
+				</section>
+
+                <section>
+                    <pre><code class="js" data-trim>
+
+                    <gmap-map
+                            :center="{lat: 37.7578885, lng: -122.5776858}"
+                            :zoom="11"
+                    >
+
+                        <ais-results>
+                            <template scope="{ result }">
+
+                                <gmap-marker
+                                        :position="{
+                                            lat: parseFloat(result._geoloc.lat),
+                                            lng: parseFloat(result._geoloc.lng)
+                                        }">
+                                </gmap-marker>
+
+                            </template>
+                        </ais-results>
+
+                    </gmap-map>
+
+                    </code></pre>
+                </section>
+
+
+				<section>
+					<img data-src="img/screenshots/10.gif">
+				</section>
+
+
+				<section>
+					<pre><code class="html" data-trim>
+<div id="app">
+	<ais-index :query-parameters="{ aroundLatLngbyIp: true }"
+			   index-name="{{ config('scout.prefix') }}homes"
+			   app-id="{{ config('scout.algolia.id') }}"
+			   api-key="MY_SEARCH_API_KEY"
+	>
+
+		<!-- Vue InstantSearch components -->
+
+	</ais-index>
+</div>
+					</code></pre>
+				</section>
+
+
+				<section>
+					<img data-src="img/screenshots/11.gif">
+				</section>
+
+
+				<section>
+					<h2>Thank you!</h2>
+					<h4>Questions?</h4>
+
+					<a href="https://twitter.com/julienbourdeau">@julienbourdeau</a>
+					<a href="https://github.com/julienbourdeau/meetup-laravel-sf">
+						https://github.com/julienbourdeau/meetup-laravel-sf
+					</a>
+
+				</section>
+
+			</div>
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.js"></script>
+
+		<script>
+			// More info about config & dependencies:
+			// - https://github.com/hakimel/reveal.js#configuration
+			// - https://github.com/hakimel/reveal.js#dependencies
+			Reveal.initialize({
+                slideNumber: true,
+				dependencies: [
+					{ src: 'plugin/markdown/marked.js' },
+					{ src: 'plugin/markdown/markdown.js' },
+					{ src: 'plugin/notes/notes.js', async: true },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() {
+                        hljs.configure({tabReplace: '  '});
+					    hljs.initHighlightingOnLoad();
+					} }
+				]
+			});
+		</script>
+	</body>
+</html>
