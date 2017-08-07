@@ -13,4 +13,16 @@ class Home extends Model
         'user' => 'array',
         'urls' => 'array',
     ];
+
+    public function toSearchableArray()
+    {
+        $home = $this->toArray();
+
+        $home['_geoloc'] = [
+            'lat' => $this->lat,
+            'lng' => $this->lng,
+        ];
+
+        return $home;
+    }
 }

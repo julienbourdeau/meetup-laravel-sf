@@ -21,6 +21,7 @@
     <ais-index index-name="{{ config('scout.prefix') }}homes"
                app-id="{{ config('scout.algolia.id') }}"
                api-key="{{ config('scout.algolia.key') }}"
+               :query-parameters='{ "aroundLatLngViaIP": true }'
     >
 
         <div class="container-fluid" style="padding-left: 0; padding-right: 0;">
@@ -66,7 +67,28 @@
 
                 <!-- Right col -->
                 <div class="col-sm-5 aisdemo--right-column">
-                    <div id="map"></div>
+                    <div id="map">
+                        <gmap-map
+                                :center="{lat: 37.7578885, lng: -122.5776858}"
+                                :zoom="3"
+                                :style="{ width: '100%', height: '400px'}"
+                        >
+
+                            <ais-results>
+                                <template scope="{ result }">
+
+                                    <gmap-marker
+                                            :position="{
+                                            lat: parseFloat(result._geoloc.lat),
+                                            lng: parseFloat(result._geoloc.lng)
+                                        }">
+                                    </gmap-marker>
+
+                                </template>
+                            </ais-results>
+
+                        </gmap-map>
+                    </div>
                 </div>
                 <!-- /Right col -->
 
